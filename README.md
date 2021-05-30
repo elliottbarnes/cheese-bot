@@ -1,4 +1,4 @@
-# CannonRushBot
+# CheeseBot
 
 A Photon Cannon Rush Bot for StarCraft Broodwar
 
