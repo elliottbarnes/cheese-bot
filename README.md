@@ -41,13 +41,13 @@ CheeseBot is currently being maintained using Visual Studio 2019, which is requi
   2. Open Start menu, type `env` and the option to edit environment variables appears
   3. Create a Windows Environment variable called `BWAPI_DIR`. The value of this variable should be the BWAPI install directory full path (ex: `c:\libraries\BWAPI_440`)
   
-## Step 2: Compile BWAPI and UAlbertaBot
+## Step 2: Compile BWAPI 
 
 **Compile BWAPI 4.4.0**
    1. Open the `BWAPI_DIR/ExampleProjects.sln` VS solution file in VS2019
    2. For both the `BWAPILIB` and `BWAPIClient` projects: Right click on the project, choose `Properties` in the left menu, and change `Platform Toolset` in the right menu to `Visual Studio 2019 (v142)`. Be sure to do this for both `Release` and `Debug` Configuration, which are selected in the top-left corner. This step is necessary because BWAPI was originally created using VS2017. 
    3. Right click and `Build` the `BWAPILIB` and `BWAPIClient` projects. This will produce the required LIB files that UAlbertaBot will link against. Be sure to build in both `Release` and `Debug` mode, selected in the toolbar above.
-   4. If done correctly, this should create two folders inside the BWAPI install directory: `Release` and `Debug`. Each of these folders should now contain `BWAPILIB.lib` and `BWAPIClient.lib`, which will be linked by the UAlbertaBot project in the next step via the Environment Variable value
+   4. If done correctly, this should create two folders inside the BWAPI install directory: `Release` and `Debug`. Each of these folders should now contain `BWAPILIB.lib` and `BWAPIClient.lib`, which will be linked by the CheeseBot project in the next step via the Environment Variable value
 
 **Compile StarterBot**
   1. Open `starterBot.sln` in Visual Studio 2019
