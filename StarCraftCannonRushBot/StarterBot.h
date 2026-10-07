@@ -1,4 +1,5 @@
 #pragma once
+#include "DecisionPolicy.h"
 
 #include "MapTools.h"
 
@@ -9,6 +10,8 @@ class StarterBot
     MapTools m_mapTools;
 
 public:
+    CheesePolicy::State strategyState() const;
+
 
     StarterBot();
 

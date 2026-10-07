@@ -22,6 +22,13 @@ StarterBot::StarterBot()
 // Called when the bot starts!
 void StarterBot::onStart()
 {
+    scout = nullptr;
+    scout2 = nullptr;
+    scoutAssigned = false;
+    enemyBaseFound = false;
+    buildPylonNext = false;
+    enemyBuild = false;
+
     // Set our BWAPI options here    
     BWAPI::Broodwar->setLocalSpeed(0);
     BWAPI::Broodwar->setFrameSkip(3);
@@ -46,9 +53,9 @@ void StarterBot::onFrame()
     m_mapTools.onFrame();
 
     // Send our idle workers to mine minerals so they don't just stand there
-    sendIdleWorkersToMinerals();
-
     scoutWithIdleWorker();
+
+    sendIdleWorkersToMinerals();
 
     initBuildOrder();
 
@@ -93,9 +100,7 @@ void StarterBot::sendIdleWorkersToMinerals()
 void StarterBot::trainAdditionalWorkers()
 {
     const BWAPI::UnitType workerType = BWAPI::Broodwar->self()->getRace().getWorker();
-    const int workersWanted = 6;
-    const int workersOwned = Tools::CountUnitsOfType(workerType, BWAPI::Broodwar->self()->getUnits());
-    if (workersOwned < workersWanted)
+    if (CheesePolicy::decide(strategyState()).trainWorker)
     {
         // get the unit pointer to my depot
         const BWAPI::Unit myDepot = Tools::GetDepot();
@@ -131,17 +136,8 @@ void StarterBot::onUnitDestroy(BWAPI::Unit deadUnit)
 {
     if (deadUnit == scout)
     {
-        const BWAPI::Unitset& myUnits = BWAPI::Broodwar->self()->getUnits();
-        for (auto& unit : myUnits)
-        {
-            // Check the unit type, if it is an idle worker, then we want to send it somewhere
-            if (unit->getType().isWorker())
-            {
-                scout = unit;
-                scout->move(enemyBasePosition);
-                BWAPI::Broodwar->printf("Scout died, new scout has been selected! Moving it to enemy position");
-            }
-        }
+        scout = nullptr;
+        scoutAssigned = false; // Reassigned safely on the next frame.
     }
 }
 
@@ -196,71 +192,64 @@ void StarterBot::onUnitRenegade(BWAPI::Unit unit)
 
 }
 
+CheesePolicy::State StarterBot::strategyState() const
+{
+    const auto& units = BWAPI::Broodwar->self()->getUnits();
+    return {
+        Tools::CountUnitsOfType(BWAPI::Broodwar->self()->getRace().getWorker(), units),
+        Tools::CountUnitsOfType(BWAPI::UnitTypes::Protoss_Pylon, units),
+        Tools::CountUnitsOfType(BWAPI::UnitTypes::Protoss_Forge, units),
+        enemyBaseFound,
+        scoutAssigned && scout && scout->exists() && scout->canBuild() && !scout->isConstructing()
+    };
+}
+
 void StarterBot::initBuildOrder()
 {
-    if (countNumberOfType(BWAPI::UnitTypes::Protoss_Pylon) < 1)
+    const auto plan = CheesePolicy::decide(strategyState());
+    if (plan.homePylon)
     {
-        if (BWAPI::Broodwar->self()->supplyTotal() >= BWAPI::UnitTypes::Protoss_Pylon.supplyRequired() && Tools::BuildBuilding(BWAPI::UnitTypes::Protoss_Pylon))
-        {
+        if (Tools::BuildBuilding(BWAPI::UnitTypes::Protoss_Pylon))
             BWAPI::Broodwar->printf("Started Building Pylon at base");
-        }
     }
-    else if (countNumberOfType(BWAPI::UnitTypes::Protoss_Forge) < 1)
+    else if (plan.homeForge)
     {
-        if (BWAPI::Broodwar->self()->supplyTotal() >= BWAPI::UnitTypes::Protoss_Forge.supplyRequired() && Tools::BuildBuilding(BWAPI::UnitTypes::Protoss_Forge))
-        {
+        if (Tools::BuildBuilding(BWAPI::UnitTypes::Protoss_Forge))
             BWAPI::Broodwar->printf("Started Building Forge at base");
-        }
     }
 }
 
 void StarterBot::rushBuildOrder()
 {
-    int maxBuildRange = 32;
-    if (enemyBaseFound)
-    {
-        if (scoutAssigned && scout->canBuild() && !scout->isConstructing()) // having trouble checking if he already has an order
-        {
-            if (BWAPI::Broodwar->self()->supplyTotal() >= BWAPI::UnitTypes::Protoss_Pylon.supplyRequired() && countNumberOfType(BWAPI::UnitTypes::Protoss_Forge) >= 1 && countNumberOfType(BWAPI::UnitTypes::Protoss_Pylon) < 3)
-            {
-                scout->build(BWAPI::UnitTypes::Protoss_Pylon, BWAPI::Broodwar->getBuildLocation(BWAPI::UnitTypes::Protoss_Pylon, scout->getTilePosition(), maxBuildRange));
-                if (scout->isConstructing())
-                {
-                    BWAPI::Broodwar->printf("Started Building Pylon at enemy base");
-                }
-
-            }
-            if (BWAPI::Broodwar->self()->supplyTotal() >= BWAPI::UnitTypes::Protoss_Forge.supplyRequired() && countNumberOfType(BWAPI::UnitTypes::Protoss_Pylon) >= 2)
-            {
-
-                scout->build(BWAPI::UnitTypes::Protoss_Photon_Cannon, BWAPI::Broodwar->getBuildLocation(BWAPI::UnitTypes::Protoss_Photon_Cannon, scout->getTilePosition(), maxBuildRange));
-                /*
-                if (scout->isConstructing())
-                {
-                    BWAPI::Broodwar->printf("Started Building Cannon at enemy base");
-                }
-                */
-            }
-        }
-    }
+    const auto plan = CheesePolicy::decide(strategyState());
+    const int maxBuildRange = 32;
+    if (plan.proxyPylon)
+        scout->build(BWAPI::UnitTypes::Protoss_Pylon, BWAPI::Broodwar->getBuildLocation(BWAPI::UnitTypes::Protoss_Pylon, scout->getTilePosition(), maxBuildRange));
+    // These are intentionally independent gates, as in the original strategy.
+    // At two pylons both orders can be attempted; BWAPI decides whether they succeed.
+    if (plan.cannon)
+        scout->build(BWAPI::UnitTypes::Protoss_Photon_Cannon, BWAPI::Broodwar->getBuildLocation(BWAPI::UnitTypes::Protoss_Photon_Cannon, scout->getTilePosition(), maxBuildRange));
 }
 
 void StarterBot::scoutWithIdleWorker()
 {
-    if (enemyBaseFound) { return; }
-    else if (!scoutAssigned)
+    if (!scoutAssigned || !scout || !scout->exists())
     {
-        const BWAPI::Unitset& myUnits = BWAPI::Broodwar->self()->getUnits();
-        for (auto& unit : myUnits)
+        scout = nullptr;
+        scoutAssigned = false;
+        for (auto& unit : BWAPI::Broodwar->self()->getUnits())
         {
-            // Check the unit type, if it is an idle worker, then we want to send it somewhere
-            if (unit->getType().isWorker() && unit->isIdle())
+            if (unit->getType().isWorker() && unit->exists() && !unit->isConstructing())
             {
                 scout = unit;
                 scoutAssigned = true;
+                if (enemyBaseFound) scout->move(enemyBasePosition);
+                break;
             }
         }
     }
+    if (!scoutAssigned || !scout || enemyBaseFound) return;
+
     for (auto tile : BWAPI::Broodwar->getStartLocations())
     {
         if (!BWAPI::Broodwar->isExplored(tile))
@@ -277,9 +266,7 @@ void StarterBot::scoutWithIdleWorker()
                     return;
                 }
             }
-            auto command = scout->getLastCommand();
-            if (command.getTargetPosition() == pos) { return; }
-            scout->move(pos);
+            if (scout->getLastCommand().getTargetPosition() != pos) scout->move(pos);
             return;
         }
     }

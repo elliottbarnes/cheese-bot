@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Explore Cheese Bot's actual C++ cannon-rush decision gates through a browser simulator."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <link rel="icon" href="./favicon.svg" />
+    <title>Cheese Bot — inside a cannon rush</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="https://elliottbarnes.ca">ELLIOTT BARNES / EXPLORE</a
+      ><a href="https://github.com/elliottbarnes/cheese-bot">C++ SOURCE ↗</a>
+    </header>
+    <main>
+      <div class="eyebrow">03 / Decision simulator</div>
+      <h1>Inside a cannon rush.</h1>
+      <p class="intro">
+        Change what the bot sees. Watch which orders its C++ rules would
+        request. This is an interactive strategy schematic, not a running
+        StarCraft game.
+      </p>
+      <div class="layout">
+        <div>
+          <section class="stage">
+            <div class="stage-head">
+              <strong id="scenario-title">The opening</strong
+              ><span class="badge">SOURCE-BASED MODEL</span>
+            </div>
+            <canvas
+              id="schematic"
+              width="800"
+              height="370"
+              aria-label="Schematic of a home base, scouting path, and forward build requests. The same decisions are listed below."
+              >Decision text is available below.</canvas
+            >
+            <p class="status" id="status" role="status" aria-live="polite"></p>
+          </section>
+          <div class="steps" aria-label="Example world snapshots">
+            <button data-step="0" aria-pressed="true">1 · Opening</button
+            ><button data-step="1" aria-pressed="false">2 · Forge</button
+            ><button data-step="2" aria-pressed="false">3 · Forward</button
+            ><button data-step="3" aria-pressed="false">4 · Overlap</button
+            ><button data-step="4" aria-pressed="false">5 · Pressure</button>
+          </div>
+          <section class="panel decisions">
+            <h2>Orders the policy requests</h2>
+            <div id="decisions" class="decision-grid"></div>
+            <p class="note">
+              These are attempts. BWAPI still checks minerals, completed
+              prerequisites, power, terrain, and worker orders. A request does
+              not prove a building was placed.
+            </p>
+          </section>
+        </div>
+        <aside class="sidebar">
+          <section class="panel">
+            <h2>Change the world state</h2>
+            <div class="field">
+              <label for="workers">Workers owned</label
+              ><input id="workers" type="number" min="0" max="20" value="4" />
+            </div>
+            <div class="field">
+              <label for="pylons">Pylons counted (including construction)</label
+              ><input id="pylons" type="number" min="0" max="20" value="0" />
+            </div>
+            <label class="toggle"
+              ><input id="forge" type="checkbox" /> At least one forge
+              exists</label
+            ><label class="toggle"
+              ><input id="enemy" type="checkbox" /> Enemy has been
+              located</label
+            ><label class="toggle"
+              ><input id="scout" type="checkbox" checked /> Scout is ready to
+              build</label
+            ><button id="reset" class="primary">Reset to opening</button>
+          </section>
+          <section class="panel">
+            <h2>A small, inspectable policy</h2>
+            <p>
+              Home pylon → forge. Scout the start locations. Then request
+              forward pylons and cannons, keeping the worker target at six.
+            </p>
+            <p>
+              At two pylons, both forward build gates can be true. Explore step
+              4 to see the overlapping requests preserved from the original.
+            </p>
+            <p class="note">
+              Snapshot steps are illustrative, not a timed economy or combat
+              simulation. No game assets, BWAPI runtime, opponent AI, or
+              win-rate model are loaded.
+            </p>
+            <a
+              class="small"
+              href="https://github.com/elliottbarnes/cheese-bot/blob/main/StarCraftCannonRushBot/DecisionPolicy.h"
+              >Inspect the C++ policy ↗</a
+            >
+          </section>
+        </aside>
+      </div>
+    </main>
+    <footer>
+      <span
+        >Original coursework by Jacob Critch and Elliott Barnes. Unofficial
+        educational project; StarCraft is a Blizzard trademark.</span
+      ><a
+        href="https://github.com/elliottbarnes/cheese-bot#verification-and-limits"
+        >What is verified ↗</a
+      >
+    </footer>
+  </body>
+</html>

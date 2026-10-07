@@ -1,0 +1,12 @@
+{
+  "name": "cheese-bot-demo",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build-demo.mjs"
+  }
+}

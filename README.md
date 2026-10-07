@@ -1,83 +1,72 @@
-# CheeseBot
+# Cheese Bot
 
-A Photon Cannon Rush Bot for StarCraft Broodwar
+A C++ / BWAPI Protoss cannon-rush coursework bot by **Jacob Critch and Elliott Barnes**, with an interactive explanation of its decision policy.
 
-### CheeseBot Installation 
+**[Explore the decision simulator](https://elliottbarnes.github.io/cheese-bot/)** · [C++ policy](StarCraftCannonRushBot/DecisionPolicy.h) · [BWAPI integration](StarCraftCannonRushBot/StarterBot.cpp)
 
-Here you will find step-by-step instructions to install and use CheeseBot
+The browser example is a schematic simulator of decision gates. It does not execute StarCraft, BWAPI, combat, pathfinding, build placement, or a timed economy. It contains no game assets. A requested order may still fail in the real game.
 
-## Step 1: Install Prerequisites
+## Try and test the portable part
 
-CheeseBot is currently being maintained using Visual Studio 2019, which is required to open the project file and build the source code. Only use the exact versions of everything listed below.
+Serve the browser example with Python 3:
 
-**List of Prerequisites for Bot Compiling:**
-  * [Visual Studio 2019](https://visualstudio.microsoft.com/vs/)
-    * Only the C++ related packages are required to compile the bot
-  * [CheeseBot](https://github.com/elliottbarnes/CannonRushBot) 
-    * Source Code - clone this repo or download it as a .zip file
-  * [Starcraft: Broodwar](https://starcraftbw.s3.us-east-2.amazonaws.com/Starcraft_1161.zip) (version 1.16.1)
-    * Use this link to install SC, NOT the Blizzard launcher
-    * Unzip this file into a folder (no installation required)
-    * Don't run `StarCraft.exe` on its own, it probably won't work. You run the game with the `Chaoslauncher` program later, with instructions below
-  * [BWAPI 4.4.0](https://github.com/bwapi/bwapi/releases/tag/v4.4.0) 
-    * Download 4.4.0 stable Release, don't clone the GitHub repo
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory demo
+```
 
-**Install Visual Studio**
-  1. Install Visual Studio 2019 from the Microsoft website, which may take several minutes
-  2. Only the C++ development options are required
+Open `http://127.0.0.1:8000`. Choose an example world snapshot or change worker/pylon counts and the forge, enemy-discovery, and scout-readiness conditions. The enabled requests update immediately.
 
-**Install Starcraft**
-  1. Install StarCraft: Broodwar version 1.16.1 (this is the only version that will work). 
-  2. Connecting to battle.net or running any game patcher after this step will break the install, and you'll need to re-install Starcraft from scratch (Note: This refers to connecting to bnet within BW, not the modern bnet launcher program)
+With Node.js 24 and a C++17 compiler (`c++`, or set `CXX`):
 
-**Install BWAPI**
-  1. Make sure you install BWAPI to a directory without any spaces in its name. 
-  2. Either use the BWAPI exe installer, or extract the .7z file to the install directory
-  3. Copy the files from BWAPI's StarCraft folder into your StarCraft install directory
-  4. Copy the files from BWAPI's Windows folder into your StarCraft directory (required dll files)
+```sh
+node --test
+node scripts/build-demo.mjs
+```
 
-**Windows Environment Variable**
-  1. The StarterBot visual studio project makes use of a Windows Environment Variable to find the location of the BWAPI library files. This is done in so that the project can be compiled on any system without any changes to the project file itself.
-  2. Open Start menu, type `env` and the option to edit environment variables appears
-  3. Create a Windows Environment variable called `BWAPI_DIR`. The value of this variable should be the BWAPI install directory full path (ex: `c:\libraries\BWAPI_440`)
-  
-## Step 2: Compile BWAPI 
+The tests compile the actual pure C++ policy and compare the browser model against it across all 160 combinations in a bounded world-state corpus. They also cover readiness gates, the worker cap, overlapping build requests, and invalid browser inputs. The policy can be tested without Node through CMake:
 
-**Compile BWAPI 4.4.0**
-   1. Open the `BWAPI_DIR/ExampleProjects.sln` VS solution file in VS2019
-   2. For both the `BWAPILIB` and `BWAPIClient` projects: Right click on the project, choose `Properties` in the left menu, and change `Platform Toolset` in the right menu to `Visual Studio 2019 (v142)`. Be sure to do this for both `Release` and `Debug` Configuration, which are selected in the top-left corner. This step is necessary because BWAPI was originally created using VS2017. 
-   3. Right click and `Build` the `BWAPILIB` and `BWAPIClient` projects. This will produce the required LIB files that UAlbertaBot will link against. Be sure to build in both `Release` and `Debug` mode, selected in the toolbar above.
-   4. If done correctly, this should create two folders inside the BWAPI install directory: `Release` and `Debug`. Each of these folders should now contain `BWAPILIB.lib` and `BWAPIClient.lib`, which will be linked by the CheeseBot project in the next step via the Environment Variable value
+```sh
+cmake -S . -B build/policy
+cmake --build build/policy
+ctest --test-dir build/policy --output-on-failure
+```
 
-**Compile StarterBot**
-  1. Open `starterBot.sln` in Visual Studio 2019
-  2. Select `Release` or `Debug` mode. The `Debug` version will run much slower, because it keeps track of all variables while running for debugging purposes. If you want to run the bot as fast as possible, select `Release`. `Debug` mode compiles faster, and is recommended for development.
-  3. Right-click and `Build` the `UAlbertaBot` project (all projects will be built)
-  4. The compiled executable file will go to the `StarterBot/bin` directory
-  5. Depending on whether compiled in `Release` or `Debug` mode, the exe file generated will be `UAlbertaBot.exe` or `UAlberaBot_d.exe` respectively
+## Native Windows client
 
-## Step 3: Run StarterBot and Starcraft
+The original repository did not contain the Visual Studio solution referenced by its old README. `CMakeLists.txt` now supplies an explicit native target, disabled by default. Building and running it requires **Windows, MSVC, Win32 architecture, BWAPI 4.4.0, and a legitimate compatible StarCraft: Brood War installation**. The historical target is game version 1.16.1. Obtain the game through legitimate channels; no game download is supplied here.
 
-In order to use a BWAPI-based bot with Starcraft, you must run Starcraft through the `Chaoslauncher` program that comes with BWAPI. Chaoslauncher injects the BWAPI .dll file into Starcraft so that it can communicate with your bot. The executable file for Chaoslauncher is `Chaoslauncher.exe` and is located in `BWAPI_DIR/Chaoslauncher/`. Chaoslauncher can be run from anywhere on your system, so it is fine to leave it in the BWAPI directory, but I recommend creating a shortcut to it on your taskbar since you will be using it quite often. There is also a multi-instance version which allows you to run multiple simultaneous instances of Starcraft.
+Use the [official BWAPI 4.4.0 release and build notes](https://github.com/bwapi/bwapi/releases/tag/v4.4.0). BWAPI's library projects must be compiled with your matching compiler and build configuration; precompiled libraries from an unrelated toolset are not interchangeable. Build `BWAPILIB` and `BWAPIClient` from that release, then configure this client with the resulting Release libraries:
 
-1. Ensure `Chaoslauncher.exe` and `Starcraft.exe` are set up to run as Administrator. Right click the .exe file, select `Properties` > `Compatibility` > check `Run as Administrator`
-2. Run `BWAPI_DIR/Chaoslauncher/Chaoslauncher.exe` 
-4. Ensure that the `BWAPI 4.4.0 Injector Release` and `W-MODE` options are checked in Chaoslauncher
-5. Run `StarterBot` one of two ways: 1) run from VS (by clicking `Local Windows Debugger` above)
-6. The bot should now be running in its own console window, printing `Game table mapping not found` once per second. This will continue until Starcraft is run with BWAPI, at which point the bot will automatically connect to Starcraft and run
-7. Click `Start` in Chaoslauncher to run StarCraft, StarterBot will connect when the game starts
-8. The first time you do step 7, Chaoslauncher may complain that it doesn't know where Starcraft is installed. Click the `Settings` tab on top of the window and edit the `Installpath` directory.
-9. Inside StarCraft, start a game using `Single Player` > `Expansion` > `Play Custom`, select any standard multiplayer map and use `Melee` settings to start. Note: The bot will not work with more than one opponent or in the single player campaign.
+```powershell
+cmake -S . -B build/native -A Win32 -DBUILD_BWAPI_CLIENT=ON `
+  -DBWAPI_DIR=C:/libraries/BWAPI_440 `
+  -DBWAPI_LIBRARY=C:/libraries/BWAPI_440/Release/BWAPILIB.lib `
+  -DBWAPI_CLIENT_LIBRARY=C:/libraries/BWAPI_440/Release/BWAPIClient.lib
+cmake --build build/native --config Release --target CheeseBot
+```
 
-## Step 4. Development Cycle
+Adjust the example library paths to the actual outputs. Use BWAPI's documented injector/client setup for a local game, run `build/native/Release/CheeseBot.exe`, and select Protoss with one opponent. The client waits for BWAPI and then handles match events. [BWAPI configuration reference](https://github.com/bwapi/bwapi/wiki/Configuration).
 
-Once you have everything up and running the first time, I recommend the following workflow:
+The Windows/BWAPI build and game session have **not** been executed in this completion pass. A compatible Windows environment is still required to validate that integration; browser and portable-policy tests do not establish native playability or competitive performance.
 
-1. Keep Chaoslauncher open while developing, there is no reason to close it
-2. Edit the `BWAPI.ini` file to `AUTO_MENU` on so that you don't have to select Starcraft settings each time the game is run (see below)
-3. After you change the code in VS, simply run the bot by clicking the `Local Windows Debugger` button next to the green arrow in VS, and then click 'Start' in Chaoslauncher. This will first run UAlbertaBot, and then launch Starcraft
-4. Finally, both Starcraft and UAB need to be shut down before you can compile the bot again. You can do this by just closing the Starcraft window, which will automatically stop the `StarterBot.exe` process.
+## What the code does
 
-Dev Note: Manually navigating the Starcraft menus becomes very tedious when developing the bot and having to run it multiple times. You can configure the `BWAPI.ini` file to use the `AUTO_MENU` feature, which will use your input settings to automatically select which map and race to play for you. I recommend getting this to work before starting bot development. To edit the `BWAPI.ini` file, first select `BWAPI 4.4.0 Injector [RELEASE]` inside Chaoslauncher and then click the `Config` button on the right. This will open the `Starcraft/bwapi-data/BWAPI.ini` file in notepad.
+`onFrame()` updates map information, assigns/scouts a worker before assigning idle workers to mining, requests home/forward structures, and trains toward six owned workers. The extracted policy preserves the original thresholds:
 
-Full details on the BWAPI config file [available here](https://github.com/bwapi/bwapi/wiki/Configuration)
+| Request       | Gate                                                                                |
+| ------------- | ----------------------------------------------------------------------------------- |
+| Home pylon    | No pylon counted                                                                    |
+| Home forge    | Pylon exists; no forge counted                                                      |
+| Forward pylon | Enemy located, scout ready, forge exists, fewer than three pylons                   |
+| Photon cannon | Enemy located, scout ready, at least two pylons                                     |
+| Worker        | Fewer than six workers owned; the integration also checks the depot is not training |
+
+The two forward gates are independent. At two pylons they can both request an order in one frame. Counts include units under construction. The policy does not establish available minerals, completed tech, power coverage, valid placement, or whether an order succeeded; BWAPI applies those constraints. The browser deliberately exposes these limits.
+
+The completion pass fixes the unassigned-scout dereference path, selects only one replacement scout after a death, resets global state between matches, and extracts the testable policy. It preserves existing group attribution, source files, and map/tool helpers. There is no new license grant.
+
+## Verification and limits
+
+CI builds/tests the portable C++ policy and browser example, then publishes only the explicit static `demo/` artifact to Pages after main changes. Actions are pinned to commits, ordinary verification has read-only repository permission, and Pages deployment has its own limited job permissions. `build.json` records the published source commit and file hashes.
+
+No Windows client execution, gameplay replay, opponent matrix, pathfinding correctness claim, or win-rate benchmark is claimed. The simulator uses illustrative snapshots, not a full game engine. StarCraft is a Blizzard trademark; this is an unofficial educational project.
