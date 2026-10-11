@@ -1,12 +1,12 @@
 :root {
   color-scheme: dark;
-  --bg: #101219;
-  --panel: #181c26;
-  --line: #353c4c;
-  --text: #edf1f6;
-  --muted: #aab5c6;
-  --accent: #b0e882;
-  --dark: #15240d;
+  --bg: #19150f;
+  --panel: #252016;
+  --line: #5b4e35;
+  --text: #fff1d2;
+  --muted: #c7b995;
+  --accent: #f0c45f;
+  --dark: #30220a;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -35,7 +35,7 @@ select {
 button,
 select {
   min-height: 44px;
-  background: #222936;
+  background: #342b1d;
   border: 1px solid var(--line);
   color: var(--text);
   padding: 10px 15px;
@@ -181,7 +181,7 @@ canvas {
   width: 100%;
   height: auto;
   touch-action: none;
-  background: #10151e;
+  background: #15120d;
 }
 .board-wrap {
   padding: 18px;
@@ -215,8 +215,8 @@ canvas {
   font-variant-numeric: tabular-nums;
 }
 kbd {
-  background: #252e3c;
-  border: 1px solid #465267;
+  background: #39301e;
+  border: 1px solid #776340;
   border-bottom-width: 2px;
   border-radius: 4px;
   padding: 1px 6px;
@@ -376,7 +376,7 @@ footer {
   color: var(--accent);
 }
 input[type="number"] {
-  background: #10151e;
+  background: #15120d;
   border: 1px solid var(--line);
   color: var(--text);
   padding: 10px;
@@ -406,3 +406,7 @@ input[type="number"] {
     padding: 10px;
   }
 }
+
+
+/* Cheese Bot — amber tactical console */
+header{border-bottom:2px solid var(--accent)}h1{font-family:ui-monospace,monospace;letter-spacing:-.055em}.eyebrow{letter-spacing:.2em}.stage,.panel{border-radius:3px;border-top:3px solid #9b8045}.stage-head{background:repeating-linear-gradient(135deg,#302718 0 8px,#2b2418 8px 16px)}button,select{border-radius:2px}.stats dd{font-family:ui-monospace,monospace;color:var(--accent)}.badge{border:1px solid #776340;padding:5px 8px}

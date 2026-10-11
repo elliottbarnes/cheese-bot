@@ -44,7 +44,7 @@ function snapshot(index) {
   $("scout").checked = s.scoutReady;
   render();
 }
-function text(value, x, y, size = 13, color = "#aab5c6") {
+function text(value, x, y, size = 13, color = "#c7b995") {
   ctx.fillStyle = color;
   ctx.font = `${size}px system-ui`;
   ctx.textAlign = "center";
@@ -103,12 +103,12 @@ function render() {
     ex = mobile ? 320 : 638;
   $("schematic").width = width;
   $("schematic").height = 370;
-  ctx.fillStyle = "#10151e";
+  ctx.fillStyle = "#15120d";
   ctx.fillRect(0, 0, width, 370);
-  ctx.fillStyle = "#26303b";
+  ctx.fillStyle = "#332b1e";
   for (let x = 20; x < width; x += 32)
     for (let y = 20; y < 370; y += 32) ctx.fillRect(x, y, 1, 1);
-  ctx.strokeStyle = "#3c4653";
+  ctx.strokeStyle = "#5b4e35";
   ctx.setLineDash([5, 7]);
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -117,7 +117,7 @@ function render() {
   ctx.stroke();
   ctx.setLineDash([]);
   polygon(hx, 177, mobile ? 28 : 49, 6, "#91bfff");
-  text("HOME", hx, 180, mobile ? 11 : 15, "#edf1f6");
+  text("HOME", hx, 180, mobile ? 11 : 15, "#fff1d2");
   text(`${s.workers} workers`, hx, 262, mobile ? 11 : 13);
   text(`${s.pylons} pylons · ${s.forges} forge`, hx, 286, mobile ? 10 : 13);
   for (let i = 0; i < Math.min(s.workers, 10); i++) {
@@ -133,7 +133,7 @@ function render() {
     );
     ctx.fill();
   }
-  polygon(sx, 185, mobile ? 11 : 15, 3, s.scoutReady ? "#f0cd7e" : "#657184");
+  polygon(sx, 185, mobile ? 11 : 15, 3, s.scoutReady ? "#f0cd7e" : "#93815e");
   text(
     s.scoutReady ? "SCOUT READY" : "SCOUT UNAVAILABLE",
     sx,
@@ -141,13 +141,13 @@ function render() {
     mobile ? 9 : 12,
   );
   text("Scouting / forward orders", sx, 105, mobile ? 10 : 12);
-  polygon(ex, 177, mobile ? 32 : 53, 4, s.enemyFound ? "#f18f92" : "#465264");
+  polygon(ex, 177, mobile ? 32 : 53, 4, s.enemyFound ? "#f18f92" : "#776340");
   text(
     s.enemyFound ? "ENEMY" : "UNKNOWN",
     ex,
     180,
     mobile ? 10 : 14,
-    s.enemyFound ? "#f5babd" : "#8b98ab",
+    s.enemyFound ? "#f5babd" : "#bdab86",
   );
   text(
     s.enemyFound ? "Location known" : "Still searching",
@@ -168,7 +168,7 @@ function render() {
     width / 2,
     31,
     mobile ? 9 : 11,
-    "#8391a5",
+    "#b09d79",
   );
 }
 for (const id of ["workers", "pylons", "forge", "enemy", "scout"])
